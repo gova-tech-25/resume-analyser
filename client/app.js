@@ -926,6 +926,16 @@ const ResultsPage = ({ result, fileName, onBack }) => {
             <span><strong>Job description is very short:</strong> Keyword matches and skill alignment feedback might be limited.</span>
           </div>
         )}
+        {(result.layout_warnings || []).map((warning, i) => (
+          <div key={`layout-warn-${i}`} className={`p-3 rounded-xl flex items-center gap-2.5 text-xs ${
+            warning.severity === 'Warning' 
+              ? 'bg-rose-950/20 border border-rose-500/10 text-rose-300' 
+              : 'bg-amber-950/20 border border-amber-500/10 text-amber-300'
+          }`}>
+            <Icon name="alert" className={`w-4 h-4 flex-shrink-0 ${warning.severity === 'Warning' ? 'text-rose-400' : 'text-amber-400'}`} />
+            <span><strong>ATS Layout {warning.severity}:</strong> {warning.message}</span>
+          </div>
+        ))}
       </div>
 
       {/* Header Summary row */}
@@ -997,6 +1007,7 @@ const ResultsPage = ({ result, fileName, onBack }) => {
       <div className="border-b border-slate-900 flex flex-wrap gap-2">
         {[
           { id: "overview", label: "Overview" },
+          { id: "star_audit", label: "STAR Audit" },
           { id: "improvements", label: "Improvement Tips" },
           { id: "skills", label: "Skills" },
           { id: "keywords", label: "Keywords" },
@@ -1027,6 +1038,95 @@ const ResultsPage = ({ result, fileName, onBack }) => {
             <MetricCard title="Impact Factor" score={result.metrics?.impact || 0} />
             <MetricCard title="Formatting Audit" score={result.metrics?.formatting || 0} />
             <MetricCard title="Completeness" score={result.metrics?.completeness || 0} />
+          </div>
+        )}
+
+        {/* STAR Audit Tab */}
+        {activeTab === "star_audit" && (
+          <div className="space-y-6 max-w-4xl">
+            {/* STAR Scorecard */}
+            <div className="glass-card rounded-2xl p-6 flex flex-col md:flex-row items-center justify-around gap-6">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <ScoreGauge score={result.star_audit?.score || 0} label="STAR Compliance" colorClass="text-emerald-500" />
+                <div className="text-center sm:text-left space-y-2">
+                  <h3 className="text-lg font-bold text-white">STAR Method Bullet Audit</h3>
+                  <p className="text-slate-300 text-sm max-w-md leading-relaxed">
+                    The STAR method (Situation, Task, Action, Result) is the gold standard for resume bullet points. Strong bullets start with an <strong>Action Verb</strong> and end with a <strong>Quantifiable Metric</strong> (numbers, %, $, etc.).
+                  </p>
+                  <div className="flex flex-wrap gap-3 justify-center sm:justify-start mt-2">
+                    <span className="text-xs px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                      {result.star_audit?.compliant || 0} Compliant Bullets
+                    </span>
+                    <span className="text-xs px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 font-medium">
+                      {result.star_audit?.total || 0} Total Bullets Audited
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bullet Point Logs */}
+            <div className="space-y-4">
+              <h3 className="font-bold text-white text-sm uppercase tracking-wider">Audited Bullet Points</h3>
+              
+              {result.star_audit?.bullets && result.star_audit.bullets.length > 0 ? (
+                result.star_audit.bullets.map((bullet, i) => {
+                  const getStatusStyles = (status) => {
+                    switch (status) {
+                      case "compliant":
+                        return { border: "border-emerald-500/20", bg: "bg-emerald-950/10", label: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" };
+                      case "missing_metric":
+                        return { border: "border-amber-500/20", bg: "bg-amber-950/10", label: "text-amber-400 bg-amber-500/10 border-amber-500/20" };
+                      case "missing_verb":
+                        return { border: "border-orange-500/20", bg: "bg-orange-950/10", label: "text-orange-400 bg-orange-500/10 border-orange-500/20" };
+                      default:
+                        return { border: "border-rose-500/20", bg: "bg-rose-950/10", label: "text-rose-400 bg-rose-500/10 border-rose-500/20" };
+                    }
+                  };
+                  const styles = getStatusStyles(bullet.status);
+                  
+                  return (
+                    <div key={i} className={`glass-card rounded-xl p-5 border ${styles.border} ${styles.bg} transition-all duration-300`}>
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <div className="space-y-2 flex-grow">
+                          <p className="text-sm font-medium text-slate-200 leading-relaxed">
+                            "{bullet.original}"
+                          </p>
+                          <p className="text-xs text-slate-400 flex items-center gap-1.5 font-medium">
+                            <Icon name="info" className="w-3.5 h-3.5 text-slate-500" />
+                            <span>{bullet.feedback}</span>
+                          </p>
+                        </div>
+                        
+                        <div className="flex sm:flex-col gap-2 flex-shrink-0">
+                          {/* Verb badge */}
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-[10px] font-bold uppercase tracking-wider">
+                            <span className={bullet.has_verb ? "text-emerald-400" : "text-rose-400"}>
+                              <Icon name={bullet.has_verb ? "check" : "x"} className="w-3.5 h-3.5 inline-block mr-1 align-text-bottom" />
+                            </span>
+                            <span className="text-slate-300">Action Verb</span>
+                          </div>
+                          
+                          {/* Metric badge */}
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-[10px] font-bold uppercase tracking-wider">
+                            <span className={bullet.has_metric ? "text-emerald-400" : "text-rose-400"}>
+                              <Icon name={bullet.has_metric ? "check" : "x"} className="w-3.5 h-3.5 inline-block mr-1 align-text-bottom" />
+                            </span>
+                            <span className="text-slate-300">Metric</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-10 bg-slate-900/20 border border-dashed border-slate-800 rounded-xl">
+                  <Icon name="info" className="w-10 h-10 mx-auto text-slate-700 mb-2" />
+                  <h4 className="font-semibold text-white">No bullet points detected</h4>
+                  <p className="text-xs text-slate-400 mt-1">We couldn't identify any standard bullet points in your Experience or Projects sections to audit.</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

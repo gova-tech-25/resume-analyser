@@ -18,6 +18,26 @@ TECH_SKILLS = [
     "Bootstrap", "Sass", "Webpack", "Vite", "Serverless", "Microservices", "System Design", "NLP"
 ]
 
+SKILL_ALIASES = {
+    "javascript": ["js", "javascript", "ecmascript"],
+    "typescript": ["ts", "typescript"],
+    "kubernetes": ["k8s", "kubernetes"],
+    "react": ["reactjs", "react.js", "react"],
+    "node.js": ["nodejs", "node.js", "node"],
+    "next.js": ["nextjs", "next.js"],
+    "vue": ["vuejs", "vue.js", "vue"],
+    "angular": ["angularjs", "angular.js", "angular"],
+    "aws": ["amazon web services", "aws"],
+    "gcp": ["google cloud", "google cloud platform", "gcp"],
+    "ci/cd": ["cicd", "ci / cd", "ci-cd", "ci/cd"],
+    "machine learning": ["ml", "machine learning", "machine-learning"],
+    "deep learning": ["dl", "deep learning", "deep-learning"],
+    "natural language processing": ["nlp", "natural language processing"],
+    "tailwind css": ["tailwindcss", "tailwind css", "tailwind"],
+    "sass": ["scss", "sass"],
+    "postgres": ["postgresql", "postgres"]
+}
+
 WEAK_PHRASES = {
     "worked on": {
         "alternatives": ["Engineered", "Developed", "Architected", "Spearheaded"],
@@ -56,25 +76,27 @@ WEAK_PHRASES = {
 def extract_sections(text: str) -> dict:
     lines = text.split("\n")
     section_headers = {
-        "summary": ["summary", "profile", "professional summary", "about me", "objective", "about"],
-        "experience": ["experience", "work history", "employment", "professional experience", "work experience", "history"],
-        "education": ["education", "academic", "university", "degrees", "academic background", "credentials"],
-        "skills": ["skills", "technical skills", "technologies", "expertise", "skill set", "core competencies"],
-        "projects": ["projects", "personal projects", "academic projects", "key projects"]
+        "summary": re.compile(r"^(summary|profile|about me|about|objective|professional summary|executive summary|career objective)$", re.I),
+        "experience": re.compile(r"^(experience|work experience|employment|employment history|work history|professional history|professional experience|professional journey|work history roles|experience roles|work experience roles)$", re.I),
+        "education": re.compile(r"^(education|academic|academic history|university|degrees|academic degrees|credentials|academic credentials)$", re.I),
+        "skills": re.compile(r"^(skills|technical skills|key skills|technologies|skills technologies|skills tools|expertise|competencies|skillset|skill set)$", re.I),
+        "projects": re.compile(r"^(projects|personal projects|academic projects|key projects|portfolio|projects portfolio)$", re.I)
     }
     
     # Find header lines
     header_lines = []
     for i, line in enumerate(lines):
-        line_clean = line.strip().lower().rstrip(":").rstrip()
+        # Normalize: replace non-alphanumeric characters with space and trim
+        line_clean = re.sub(r'[^a-zA-Z0-9\s]', ' ', line).strip()
+        line_clean = re.sub(r'\s+', ' ', line_clean)
         if not line_clean:
             continue
         words = line_clean.split()
         if len(words) > 4:
             continue
         
-        for sec, patterns in section_headers.items():
-            if line_clean in patterns:
+        for sec, pattern in section_headers.items():
+            if pattern.match(line_clean):
                 header_lines.append((i, sec))
                 break
                 
@@ -114,6 +136,140 @@ def clean_jd_words(jd_text: str) -> list:
     cleaned = [w for w in words if w not in stop_words and len(w) > 2]
     return list(set(cleaned))
 
+def audit_bullets(text: str) -> list:
+    """
+    Evaluates bullet points against the STAR method (Action Verb + Quantifiable Metric).
+    """
+    if not text:
+        return []
+        
+    lines = text.split("\n")
+    bullet_items = []
+    
+    # Common action verbs for software engineers and professionals
+    action_verbs = {
+        "designed", "engineered", "implemented", "optimized", "spearheaded", "architected", 
+        "managed", "deployed", "reduced", "increased", "delivered", "facilitated", 
+        "orchestrated", "led", "developed", "built", "created", "automated", "supervised", 
+        "refactored", "resolved", "enhanced", "accelerated", "integrated", "constructed",
+        "established", "formulated", "initiated", "launched", "executed", "collaborated"
+    }
+    
+    metric_pattern = re.compile(r"\b(?:\d+(?:\.\d+)?%\s*|\$\d+(?:\.\d+)?\s*(?:k|m|b)?\s*|\d+\s*(?:k|m|b)\s*|\d+x\b|\d{2,}\b)", re.I)
+    
+    for line in lines:
+        line_strip = line.strip()
+        if not line_strip:
+            continue
+            
+        is_bullet = False
+        content = line_strip
+        
+        # Check standard bullet markers
+        symbol_match = re.match(r"^[-*•+•\s>]+\s*(.*)", line_strip)
+        if symbol_match:
+            is_bullet = True
+            content = symbol_match.group(1).strip()
+        # Check numbered markers e.g. "1. Developed"
+        elif re.match(r"^\d+\.\s+(.*)", line_strip):
+            is_bullet = True
+            content = re.match(r"^\d+\.\s+(.*)", line_strip).group(1).strip()
+            
+        # Ignore lines that are too short to be descriptive bullet points
+        if not is_bullet or len(content.split()) < 5:
+            continue
+            
+        words = content.split()
+        # Extract first alphanumeric word as potential verb
+        first_word = re.sub(r"[^a-zA-Z]", "", words[0]).lower() if words else ""
+        
+        has_verb = False
+        if first_word in action_verbs or first_word.endswith("ed") or first_word.endswith("ing"):
+            has_verb = True
+            
+        has_metric = bool(metric_pattern.search(content))
+        
+        # Formulate structural audit recommendations
+        if has_verb and has_metric:
+            status = "compliant"
+            feedback = "Strong impact: Begins with a strong action verb and includes a quantifiable result."
+        elif has_verb:
+            status = "missing_metric"
+            feedback = "Good start: Uses an action verb, but lacks a metric/number (%, $, etc.) to quantify the outcome."
+        elif has_metric:
+            status = "missing_verb"
+            feedback = "Result present, but starts with a weak or passive phrase. Rewrite using a leadership action verb."
+        else:
+            status = "needs_refactor"
+            feedback = "Weak structure: Lacks both an active verb and a quantifiable metric. Convert to action-oriented phrasing."
+            
+        bullet_items.append({
+            "original": line_strip,
+            "content": content,
+            "has_verb": has_verb,
+            "has_metric": has_metric,
+            "status": status,
+            "feedback": feedback
+        })
+        
+    return bullet_items
+
+def check_layout_issues(text: str) -> dict:
+    """
+    Performs plain-text heuristics to identify layout formats that cause issues with ATS scanners.
+    """
+    lines = text.split("\n")
+    multi_space_lines = 0
+    total_lines_checked = 0
+    
+    for line in lines:
+        line_clean = line.strip()
+        if len(line_clean) < 20:
+            continue
+        total_lines_checked += 1
+        # Match lines that have huge spacing gaps which typically represent separate table/text box columns
+        if re.search(r"[a-zA-Z0-9]{2,}\s{4,}[a-zA-Z0-9]{2,}", line_clean):
+            multi_space_lines += 1
+            
+    is_multi_column = False
+    if total_lines_checked > 0 and (multi_space_lines / total_lines_checked) > 0.15:
+        is_multi_column = True
+        
+    has_tabs = "\t" in text
+    
+    # Check for excessive uppercase usage
+    upper_words = len([w for w in text.split() if w.isupper() and len(w) > 3])
+    total_words = len(text.split())
+    excessive_caps = False
+    if total_words > 0 and (upper_words / total_words) > 0.12:
+        excessive_caps = True
+        
+    warnings = []
+    if is_multi_column:
+        warnings.append({
+            "type": "multi_column",
+            "severity": "Warning",
+            "message": "Potential multi-column layout detected. Many traditional ATS platforms parse columns left-to-right across the page, which scrambles your information. A clean, single-column layout is recommended."
+        })
+    if has_tabs:
+        warnings.append({
+            "type": "tab_spacing",
+            "severity": "Info",
+            "message": "Tab-delimited spacing detected. We recommend using standard page margins and spacing styles to avoid parsing alignment discrepancies."
+        })
+    if excessive_caps:
+        warnings.append({
+            "type": "excessive_caps",
+            "severity": "Info",
+            "message": "Heavy usage of capitalized text. Selective capitalization should be reserved for headings to ensure optimal human and robot readability."
+        })
+        
+    return {
+        "is_multi_column": is_multi_column,
+        "has_tabs": has_tabs,
+        "warnings": warnings
+    }
+
 def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -> dict:
     """
     Analyzes resume text completely locally without external API dependencies.
@@ -149,12 +305,17 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
                 "feedback": feedback_messages.get(sec_name, "Section formatting is complete.")
             }
             
-    # 2. Tech Skills dictionary matching
+    # 2. Tech Skills matching with Synonym/Alias mapping
     found_skills = []
     for skill in TECH_SKILLS:
-        # Match using word boundaries. Match C# and C++ correctly by escaping
-        pattern = r"\b" + re.escape(skill.lower()) + r"\b"
-        if re.search(pattern, resume_lower):
+        aliases = SKILL_ALIASES.get(skill.lower(), [skill.lower()])
+        matched = False
+        for alias in aliases:
+            pattern = r"\b" + re.escape(alias) + r"\b"
+            if re.search(pattern, resume_lower):
+                matched = True
+                break
+        if matched:
             found_skills.append(skill)
             
     # 3. Job Description Overlap analysis
@@ -168,11 +329,17 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
         jd_lower = jd_text.lower()
         jd_words = clean_jd_words(jd_text)
         
-        # 3.1 Tech skills in JD
+        # 3.1 Tech skills in JD (with aliases support)
         jd_tech_skills = []
         for skill in TECH_SKILLS:
-            pattern = r"\b" + re.escape(skill.lower()) + r"\b"
-            if re.search(pattern, jd_lower):
+            aliases = SKILL_ALIASES.get(skill.lower(), [skill.lower()])
+            matched = False
+            for alias in aliases:
+                pattern = r"\b" + re.escape(alias) + r"\b"
+                if re.search(pattern, jd_lower):
+                    matched = True
+                    break
+            if matched:
                 jd_tech_skills.append(skill)
                 
         # Calculate skill matches
@@ -241,9 +408,7 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
     formatting = max(45, min(95, formatting))
     
     # 4.4 Impact (Metrics & Action Verbs)
-    # Search for numeric metrics (e.g. 15%, $50K, 100,000, 10x)
     metrics_matches = re.findall(r"\b(?:\d+%\s*|\$\d+(?:\.\d+)?\s*(?:k|m|b|K|M|B)?\s*|\d+\s*(?:k|m|b|K|M|B)\s*|\d+x\b|\d{2,}\b)", resume_text)
-    # Search for strong action verbs
     action_verbs = ["designed", "engineered", "implemented", "optimized", "spearheaded", "architected", "managed", "deployed", "reduced", "increased", "delivered", "facilitated", "orchestrated", "led", "developed", "built"]
     found_verbs = [v for v in action_verbs if r"\b" + v + r"\b" in resume_lower]
     
@@ -263,12 +428,8 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
                 # Found a weak bullet! Suggest an active rewrite
                 # Replace weak phrase with a random strong alternative
                 alt = details["alternatives"][0]
-                # Capitalize alt if it is at the start of sentence
                 improved_text = re.sub(r"\b" + re.escape(phrase) + r"\b", alt.lower(), line_strip, flags=re.I)
-                # Ensure first letter is capitalized
                 improved_text = improved_text[0].upper() + improved_text[1:]
-                
-                # Append standard mock metric suffix to suggest quantification
                 improved_text += ", resulting in a 15% increase in operational efficiency."
                 
                 # Deduplicate suggestions by original text
@@ -443,6 +604,18 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
             "priority": "Low",
             "tip": f"Continue tailoring your resume's experience and project descriptions to focus heavily on core {domain} patterns, architecture, and engineering principles."
         })
+        
+    # 8. Advanced Layout Checks & STAR bullet point auditing
+    layout_info = check_layout_issues(resume_text)
+    
+    # Audit bullet points from both Experience and Projects sections
+    experience_bullets = audit_bullets(sections.get("experience", ""))
+    projects_bullets = audit_bullets(sections.get("projects", ""))
+    all_bullets = experience_bullets + projects_bullets
+    
+    total_bullets = len(all_bullets)
+    compliant_bullets = len([b for b in all_bullets if b["status"] == "compliant"])
+    star_score = int((compliant_bullets / total_bullets) * 100) if total_bullets > 0 else 100
     
     return {
         "overall_score": overall_score,
@@ -462,6 +635,13 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
         "missing_keywords": missing_keywords,
         "suggestions": suggestions,
         "improvements": improvements,
+        "layout_warnings": layout_info["warnings"],
+        "star_audit": {
+            "score": star_score,
+            "total": total_bullets,
+            "compliant": compliant_bullets,
+            "bullets": all_bullets
+        },
         "summary_feedback": summary_feedback,
         "local_mode": True
     }

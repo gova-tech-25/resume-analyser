@@ -1,4 +1,4 @@
-// React components for ResuMind AI Resume Analyzer
+// React components for ResuMind AI Resume Analyser
 
 const { useState, useEffect, useRef } = React;
 
@@ -49,6 +49,9 @@ const Icon = ({ name, className = "w-5 h-5" }) => {
     ),
     compare: (
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    ),
+    brain: (
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.5 14.5c.5.5 1.25.5 1.75 0M8 11.5a3.5 3.5 0 013.5-3.5m5 3.5c.5-.5 1.25-.5 1.75 0M13 11.5a3.5 3.5 0 00-3.5-3.5M4.5 12h15m-15 0A3.5 3.5 0 118 8.5m4 3.5a3.5 3.5 0 114 0" />
     )
   };
 
@@ -198,7 +201,7 @@ const KeywordChips = ({ keywords = [], missing = [], title = "Keywords" }) => {
     return (
       <div className="text-center py-8 text-slate-400 bg-slate-900/20 border border-dashed border-slate-800 rounded-xl">
         <Icon name="info" className="w-8 h-8 mx-auto text-slate-600 mb-2" />
-        <p>No job description was provided to analyze keywords alignment.</p>
+        <p>No job description was provided to analyse keywords alignment.</p>
       </div>
     );
   }
@@ -298,8 +301,8 @@ const SuggestionCard = ({ suggestion, index }) => {
   );
 };
 
-// Drag and drop zone component (EC-28)
-const UploadZone = ({ file, setFile, title = "Upload Resume" }) => {
+// Drag and drop zone component (EC-28) - Redesigned to 3D Isometric Holographic Scanner
+const UploadZone = ({ file, setFile }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -342,10 +345,8 @@ const UploadZone = ({ file, setFile, title = "Upload Resume" }) => {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={() => fileInputRef.current && fileInputRef.current.click()}
-      className={`glass-card rounded-2xl p-8 border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center text-center cursor-pointer group ${
-        isDragOver 
-          ? "border-emerald-500 bg-emerald-500/5 shadow-2xl scale-[1.01]" 
-          : "border-slate-800 hover:border-slate-700 hover:bg-slate-900/10"
+      className={`relative w-full h-[460px] flex flex-col items-center justify-center cursor-pointer group transition-all duration-300 ${
+        isDragOver ? "scale-[1.02]" : ""
       }`}
     >
       <input 
@@ -356,35 +357,140 @@ const UploadZone = ({ file, setFile, title = "Upload Resume" }) => {
         className="hidden"
       />
       
-      {file ? (
-        <div className="flex flex-col items-center">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <Icon name={file.name.endsWith('.pdf') ? 'pdf' : (file.name.endsWith('.docx') ? 'docx' : 'txt')} className="w-8 h-8" />
+      {/* 3D Scene Container */}
+      <div className="scene-3d w-full h-full relative flex items-center justify-center">
+        
+        {/* Isometric Platform (Rotated in 3D Space) */}
+        <div className="scanner-isometric absolute w-72 h-72 rounded-[2rem] bg-slate-900/80 border-[3px] border-emerald-500/25 shadow-[0_0_50px_rgba(16,185,129,0.12)] flex items-center justify-center transition-all duration-500 group-hover:border-emerald-500/50 group-hover:shadow-[0_0_60px_rgba(16,185,129,0.25)]">
+          {/* Inner ring */}
+          <div className="w-56 h-56 rounded-[1.5rem] border border-slate-800/80 bg-slate-950/70 flex items-center justify-center relative overflow-hidden">
+            {/* Sci-fi circuit/grid background */}
+            <div className="absolute inset-0 opacity-[0.07] bg-[linear-gradient(rgba(16,185,129,0.3)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.3)_1px,transparent_1px)] bg-[size:10px_10px]"></div>
+            
+            {/* Concentric details */}
+            <div className="w-36 h-36 rounded-full bg-emerald-950/20 border-2 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-emerald-500/10 animate-pulse-slow"></div>
+            </div>
+            
+            {/* Glowing cyber corners */}
+            <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-emerald-500/40"></div>
+            <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-emerald-500/40"></div>
+            <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-emerald-500/40"></div>
+            <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-emerald-500/40"></div>
           </div>
-          <h4 className="text-white font-semibold text-lg max-w-xs truncate">{file.name}</h4>
-          <span className="text-xs text-slate-400 mt-1">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+        </div>
+
+        {/* Upright Hologram overlay projection (positioned above the base) */}
+        <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-20">
           
-          <button 
-            onClick={clearFile}
-            className="mt-4 flex items-center gap-1.5 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 px-3 py-1.5 rounded-lg transition-colors"
-          >
-            <Icon name="trash" className="w-3.5 h-3.5" />
-            Remove File
-          </button>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center">
-          <div className="w-16 h-16 rounded-2xl bg-slate-900/60 border border-slate-800 text-slate-400 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-all duration-300">
-            <Icon name="upload" className="w-8 h-8" />
+          {/* Vertical cylindrical glowing light beam */}
+          <div className="absolute w-48 h-72 bg-gradient-to-t from-emerald-500/15 via-emerald-500/5 to-transparent rounded-full blur-xl transform translate-y-[-20px] animate-beam"></div>
+          
+          {/* Floating glassmorphic document sheet */}
+          <div className="animate-float relative w-48 h-64 bg-slate-950/65 backdrop-blur-md border border-emerald-500/35 rounded-2xl p-4 shadow-[0_0_35px_rgba(16,185,129,0.15)] flex flex-col justify-between transition-all duration-300 group-hover:border-emerald-500/55">
+            {/* Top status bar */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span className="text-[9px] uppercase tracking-widest text-slate-400 font-extrabold">
+                    {file ? "File Loaded" : "Scanner Ready"}
+                  </span>
+                </div>
+                <Icon name="sparkles" className="w-3.5 h-3.5 text-emerald-400" />
+              </div>
+              
+              {/* Document dummy content lines */}
+              <div className="space-y-2.5">
+                <div className="h-1.5 w-3/4 bg-slate-800/80 rounded"></div>
+                <div className="h-1.5 w-full bg-slate-800/80 rounded"></div>
+                <div className="h-1.5 w-5/6 bg-slate-800/80 rounded"></div>
+                <div className="h-1.5 w-2/3 bg-slate-800/80 rounded"></div>
+              </div>
+            </div>
+
+            {/* Middle Upload State or Name representation */}
+            <div className="flex flex-col items-center justify-center my-3 py-2 bg-slate-950/60 border border-slate-800/80 rounded-xl px-2.5">
+              {file ? (
+                <>
+                  <div className="text-emerald-400 mb-1.5">
+                    <Icon name={file.name.endsWith('.pdf') ? 'pdf' : (file.name.endsWith('.docx') ? 'docx' : 'txt')} className="w-6 h-6" />
+                  </div>
+                  <div className="text-[10px] text-white font-semibold truncate w-full text-center">{file.name}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5">{(file.size / (1024 * 1024)).toFixed(2)} MB</div>
+                </>
+              ) : (
+                <>
+                  <div className="text-slate-500 mb-1.5 group-hover:text-emerald-400 group-hover:scale-110 transition-all duration-300">
+                    <Icon name="upload" className="w-6 h-6" />
+                  </div>
+                  <div className="text-[9px] text-slate-400 font-semibold text-center group-hover:text-white transition-colors px-1 leading-normal">
+                    Drop your resume here or click to browse
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Bottom details */}
+            <div className="flex items-center justify-between text-[8px] text-slate-500 font-extrabold uppercase tracking-wide">
+              <span>PDF, DOCX, TXT</span>
+              <span>Secure scan</span>
+            </div>
+
+            {/* Sweeping neon laser line */}
+            <div className="absolute left-0 right-0 h-[2px] bg-emerald-400/90 shadow-[0_0_15px_rgba(52,211,153,0.9)] animate-scan"></div>
           </div>
-          <p className="text-white font-medium text-lg">Drop your resume here or click to browse</p>
-          <p className="text-xs text-slate-400 mt-2 max-w-xs leading-normal">
-            Supported file formats: <span className="font-semibold text-slate-300">PDF, DOCX, TXT</span> (Max size 5MB)
-          </p>
+
+          {/* Floating keywords tags orbiting around */}
+          <div className="absolute w-full h-full">
+            <div className="absolute top-[20%] left-[8%] animate-orbit-1 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded-full shadow-md">
+              python
+            </div>
+            <div className="absolute top-[52%] left-[5%] animate-orbit-2 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded-full shadow-md" style={{ animationDelay: '-2s' }}>
+              leadership
+            </div>
+            <div className="absolute top-[32%] right-[8%] animate-orbit-2 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded-full shadow-md" style={{ animationDelay: '-1s' }}>
+              analytics
+            </div>
+            <div className="absolute top-[58%] right-[6%] animate-orbit-1 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded-full shadow-md" style={{ animationDelay: '-3.5s' }}>
+              keywords
+            </div>
+          </div>
+
         </div>
+
+      </div>
+      
+      {/* Remove File Button */}
+      {file && (
+        <button 
+          onClick={clearFile}
+          className="absolute bottom-2 z-30 flex items-center gap-1.5 text-[10px] text-rose-400 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 px-3 py-1.5 rounded-lg transition-colors"
+        >
+          <Icon name="trash" className="w-3 h-3" />
+          Remove File
+        </button>
       )}
     </div>
   );
+};
+
+// Global Helper for downloading analysis JSON report
+const downloadJSONReport = (fileName, result) => {
+  const reportData = {
+    analysis_date: new Date().toISOString(),
+    document_name: fileName,
+    ...result
+  };
+  const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `ResuMind_Report_${fileName.replace(/\.[^/.]+$/, "")}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 // Main layout components
@@ -441,7 +547,7 @@ const App = () => {
         "Scanning skill sets alignment...",
         "Calculating keyword match density...",
         "Checking ATS system compatibility...",
-        "Generating rewrite optimization ideas..."
+        "Generating rewrite analysis feedback..."
       ];
       let idx = 0;
       setLoadingMessage(messages[idx]);
@@ -568,7 +674,7 @@ const App = () => {
       
       if (!response.ok) {
         const errJson = await response.json().catch(() => ({}));
-        throw new Error(errJson.message || `Failed to analyze ${selectedFile.name}`);
+        throw new Error(errJson.message || `Failed to analyse ${selectedFile.name}`);
       }
       return await response.json();
     };
@@ -602,34 +708,39 @@ const App = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navigation Header */}
-      <header className="border-b border-slate-900 bg-slate-950/80 sticky top-0 z-40 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      {/* Navigation Header - Floating Glassy Curved Bar */}
+      <header className="sticky top-0 z-40 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setPage("upload")}>
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <Icon name="sparkles" className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <Icon name="sparkles" className="w-4.5 h-4.5 text-white" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
-              ResuMind <span className="text-[10px] uppercase font-extrabold tracking-widest px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">AI</span>
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-extrabold tracking-tight text-white">ResuMind</span>
+              <span className="text-[10px] uppercase font-extrabold tracking-widest px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">AI</span>
+            </div>
           </div>
 
-          <nav className="flex items-center gap-1 sm:gap-4">
+          <nav className="flex items-center gap-2">
             <button 
               onClick={() => { setPage("upload"); setUploadState("idle"); setFile(null); }}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
-                page === "upload" || page === "results" ? "text-emerald-400 bg-emerald-500/10" : "text-slate-400 hover:text-white"
+              className={`px-4 py-2 text-xs font-bold rounded-full transition-all border ${
+                page === "upload" || page === "results" 
+                  ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]" 
+                  : "text-slate-400 bg-slate-900/40 border-slate-800/60 hover:text-white hover:border-slate-700"
               }`}
             >
-              Analyzer
+              Analyser
             </button>
             <button 
               onClick={() => { setPage("compare"); setCompState("idle"); }}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-1.5 ${
-                page === "compare" ? "text-emerald-400 bg-emerald-500/10" : "text-slate-400 hover:text-white"
+              className={`px-4 py-2 text-xs font-bold rounded-full transition-all flex items-center gap-1.5 border ${
+                page === "compare" 
+                  ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]" 
+                  : "text-slate-400 bg-slate-900/40 border-slate-800/60 hover:text-white hover:border-slate-700"
               }`}
             >
-              <Icon name="compare" className="w-4 h-4" />
+              <Icon name="compare" className="w-3.5 h-3.5" />
               Compare Mode
             </button>
           </nav>
@@ -664,7 +775,7 @@ const App = () => {
               <div className="absolute inset-2 rounded-full border-4 border-blue-500/10 border-t-blue-400 animate-spin-slow" style={{ animationDirection: 'reverse' }}></div>
             </div>
             
-            <h3 className="text-xl font-bold text-white mb-2">Analyzing Resume</h3>
+            <h3 className="text-xl font-bold text-white mb-2">Analysing Resume</h3>
             <p className="text-slate-400 text-sm h-6">{loadingMessage}</p>
 
             <button 
@@ -710,7 +821,7 @@ const App = () => {
   );
 };
 
-// Upload Page View Component
+// Upload Page View Component - Three Column Glassy Layout
 const UploadPage = ({ 
   file, 
   setFile, 
@@ -723,12 +834,28 @@ const UploadPage = ({
   uploadState,
   errorDetails
 }) => {
-  const [isJdOpen, setIsJdOpen] = useState(false);
+  const [isJdOpen, setIsJdOpen] = useState(true); // Default open for premium visual appearance
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Upload Zone & Optional Job Description Input */}
-      <div className="lg:col-span-2 space-y-6">
+    <div className="glass-hero-container rounded-[2.5rem] p-6 sm:p-8 lg:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+      {/* Curved top bar decoration */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 shadow-[0_1px_15px_rgba(16,185,129,0.5)] z-20"></div>
+      
+      {/* Ambient background glows */}
+      <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none z-0"></div>
+      <div className="absolute -bottom-40 -right-40 w-80 h-80 rounded-full bg-blue-500/5 blur-[120px] pointer-events-none z-0"></div>
+
+      {/* Floating glowing 4-point star at bottom right */}
+      <div className="absolute bottom-6 right-6 text-emerald-400/20 animate-pulse pointer-events-none z-0">
+        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z" fill="currentColor" />
+        </svg>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
+        
+        {/* Column 1 (Left): Control Console (~35% width / 4 cols) */}
+        <div className="lg:col-span-4 space-y-6">
         
         {/* Error Alert Display */}
         {uploadState === "error" && errorDetails.message && (
@@ -743,80 +870,164 @@ const UploadPage = ({
           </div>
         )}
 
-        <div className="space-y-2">
-          <h1 className="text-3xl font-extrabold tracking-tight text-white gradient-text">Optimize Your Resume</h1>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Upload your resume, add your target job description, and leverage advanced AI to identify gaps, optimize keywords, and boost your ATS scoring matches instantly.
+        <div className="space-y-3">
+          <h1 className="text-4xl font-extrabold tracking-tight text-white leading-[1.15]">
+            Analyse <br />
+            Your Resume
+          </h1>
+          <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+            Upload your resume, add your target job description, and leverage advanced AI to identify gaps, analyse keywords, and boost your ATS scoring matches instantly.
           </p>
         </div>
 
-        {/* Upload Component */}
-        <UploadZone file={file} setFile={setFile} />
-
-        {/* Collapsible JD Input */}
-        <div className="glass-card rounded-2xl overflow-hidden transition-all duration-300">
-          <button 
-            onClick={() => setIsJdOpen(!isJdOpen)}
-            className="w-full flex items-center justify-between p-5 hover:bg-slate-900/30 transition-colors focus:outline-none"
-          >
-            <div className="flex items-center gap-3">
-              <span className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400">
-                <Icon name="briefcase" className="w-5 h-5" />
-              </span>
-              <div className="text-left">
-                <h4 className="font-semibold text-white">Target Job Description (Optional)</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Analyze matches against specific roles</p>
+        {/* Collapsible JD Input - styled as macOS window */}
+        <div className="glass-card rounded-2xl border border-slate-800/80 overflow-hidden transition-all duration-300 shadow-xl shadow-black/40">
+          {/* macOS window header */}
+          <div className="bg-slate-950/40 border-b border-slate-900 px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {/* Traffic light window controls */}
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <span className="w-2 h-2 rounded-full bg-rose-500/80"></span>
+                <span className="w-2 h-2 rounded-full bg-amber-500/80"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500/80"></span>
+              </div>
+              
+              {/* Briefcase Icon & Title */}
+              <div className="flex items-center gap-2.5 border-l border-slate-800 pl-4">
+                <div className="w-8 h-8 rounded-lg bg-slate-900/60 border border-slate-800/80 flex items-center justify-center text-slate-400">
+                  <Icon name="briefcase" className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-white block">Target Job Description (Optional)</span>
+                  <span className="text-[9px] text-slate-500 font-medium block">Analyse matches against specific roles</span>
+                </div>
               </div>
             </div>
-            <span className={`transform transition-transform duration-300 ${isJdOpen ? "rotate-90" : ""}`}>
-              <Icon name="arrowRight" className="w-4 h-4 text-slate-400" />
-            </span>
-          </button>
+            
+            <button 
+              onClick={() => setIsJdOpen(!isJdOpen)}
+              className="flex items-center gap-2 hover:text-emerald-400 transition-colors text-slate-400 focus:outline-none"
+            >
+              <span className={`transform transition-transform duration-300 ${isJdOpen ? "rotate-90" : ""}`}>
+                <Icon name="arrowRight" className="w-3.5 h-3.5" />
+              </span>
+            </button>
+          </div>
 
           {isJdOpen && (
-            <div className="p-5 border-t border-slate-800 bg-slate-900/10">
+            <div className="p-4 bg-slate-900/10">
+              <div className="flex items-center justify-between mb-1.5 text-[9px] text-slate-500 font-bold uppercase">
+                <span>Paste keywords, skills, etc.</span>
+                <span>Job Description</span>
+              </div>
               <textarea 
                 value={jdText}
                 onChange={(e) => setJdText(e.target.value)}
                 placeholder="Paste the job description keywords, skills, and details here to compare against your resume..."
-                rows="6"
-                className="w-full rounded-xl p-4 text-sm font-medium leading-relaxed bg-slate-950/60 border border-slate-800 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20"
+                rows="5"
+                className="w-full rounded-xl p-3 text-xs font-medium leading-relaxed bg-slate-950/50 border border-slate-800/80 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/10"
               />
-              <div className="flex items-center justify-between mt-2 text-[10px] text-slate-500 font-semibold uppercase">
+              <div className="flex items-center justify-between mt-2 text-[9px] text-slate-500 font-bold uppercase">
                 <span>Max: 2000 words</span>
                 <span>{jdText.trim() ? jdText.split(/\s+/).length : 0} words</span>
+              </div>
+
+              {/* Field Select Row */}
+              <div className="mt-3 flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                <span className="text-xs font-bold text-slate-400">Field</span>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+                  <select 
+                    defaultValue="software_engineering"
+                    className="bg-transparent text-xs font-bold text-slate-300 focus:outline-none cursor-pointer text-right appearance-none hover:text-emerald-400 transition-colors"
+                  >
+                    <option value="software_engineering" className="bg-slate-950 text-slate-300">Software Engineering</option>
+                    <option value="data_science" className="bg-slate-950 text-slate-300">Data Science</option>
+                    <option value="product_management" className="bg-slate-950 text-slate-300">Product Management</option>
+                    <option value="finance" className="bg-slate-950 text-slate-300">Finance & Banking</option>
+                    <option value="other" className="bg-slate-950 text-slate-300">General/Other</option>
+                  </select>
+                  <Icon name="arrowRight" className="w-3 h-3 text-slate-500" />
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Trigger Analysis CTA */}
-        <button
-          onClick={handleAnalyze}
-          disabled={!file}
-          className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all ${
-            file 
-              ? "gradient-primary text-white hover:scale-[1.01] hover:shadow-emerald-500/10 shadow-emerald-500/5 cursor-pointer" 
-              : "bg-slate-800/50 text-slate-500 border border-slate-800 cursor-not-allowed"
-          }`}
-        >
-          <Icon name="sparkles" className="w-5 h-5" />
-          Analyze Resume
-        </button>
+        {/* Trigger Analysis CTA - Glassy Curved Bar */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleAnalyze}
+            disabled={!file}
+            className={`flex-grow py-3.5 px-6 rounded-full font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition-all border ${
+              file 
+                ? "bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-slate-950 hover:scale-[1.01] hover:shadow-emerald-500/20 shadow-emerald-500/10 border-transparent cursor-pointer" 
+                : "bg-slate-900/40 text-slate-500 border-slate-800/80 cursor-not-allowed"
+            }`}
+          >
+            <Icon name="sparkles" className="w-4 h-4" />
+            Analyse Resume
+          </button>
+          
+          {/* Wire connection - S-curve wave */}
+          <div className="hidden sm:flex items-center">
+            <svg width="32" height="12" viewBox="0 0 32 12" className="text-emerald-500/30">
+              <path 
+                d="M0 6 C 8 12, 12 0, 16 6 S 24 0, 32 6" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="1.5"
+                strokeDasharray="3 3"
+                className="animate-pulse"
+              />
+              <circle cx="2" cy="6" r="2" className="fill-emerald-400 animate-pulse" />
+              <circle cx="30" cy="6" r="2" className="fill-emerald-400 animate-pulse" />
+            </svg>
+          </div>
+          
+          {/* Brain Hologram Box */}
+          <div className="w-11 h-11 rounded-xl bg-slate-900/80 border border-emerald-500/25 flex items-center justify-center relative shadow-[0_0_15px_rgba(16,185,129,0.15)] flex-shrink-0 animate-float">
+            <div className="absolute inset-0.5 rounded-lg bg-gradient-to-br from-emerald-500/10 to-transparent"></div>
+            <Icon name="brain" className="w-5 h-5 text-emerald-400 animate-pulse-slow relative z-10" />
+          </div>
+        </div>
+
+        {/* Supported formats glassy row & output text */}
+        <div className="pt-2">
+          <div className="flex gap-2 items-center">
+            {['pdf', 'docx', 'txt', 'briefcase', 'sparkles', 'history', 'compare', 'brain'].map((iconName, index) => (
+              <div 
+                key={index}
+                className="w-8 h-8 rounded-lg bg-slate-900/40 border border-slate-800/80 flex items-center justify-center text-slate-500 hover:text-emerald-400 hover:border-emerald-500/20 hover:scale-105 transition-all duration-300 shadow-md"
+              >
+                <Icon name={iconName} className="w-3.5 h-3.5" />
+              </div>
+            ))}
+          </div>
+          <span className="block mt-3 text-[9px] text-slate-500 font-extrabold uppercase tracking-widest leading-none">
+            Output Formats: PDF, DOCX, Interactive HTML
+          </span>
+        </div>
       </div>
 
-      {/* History Panel */}
-      <div className="lg:col-span-1 space-y-6">
-        <div className="glass-card rounded-2xl p-5 min-h-[300px] flex flex-col">
+      {/* Column 2 (Center): 3D Holographic Scanner (~40% width / 5 cols) */}
+      <div className="lg:col-span-5 flex items-center justify-center relative min-h-[460px]">
+        <UploadZone file={file} setFile={setFile} />
+      </div>
+
+      {/* Column 3 (Right): Sidebar History & Last Analysed (~25% width / 3 cols) */}
+      <div className="lg:col-span-3 space-y-6">
+        
+        {/* Panel 1: RECENT SCANS */}
+        <div className="glass-card rounded-2xl p-5 min-h-[220px] flex flex-col border border-slate-800/80 shadow-xl">
           <div className="flex items-center justify-between pb-3 border-b border-slate-900 mb-4">
-            <h3 className="font-bold text-white flex items-center gap-2 text-sm uppercase tracking-wider">
-              <Icon name="history" className="w-4.5 h-4.5 text-slate-400" />
+            <h3 className="font-extrabold text-slate-400 flex items-center gap-2 text-xs uppercase tracking-widest">
+              <Icon name="history" className="w-4 h-4" />
               Recent Scans
             </h3>
             {historyList.length > 0 && (
               <button 
                 onClick={handleClearHistory}
-                className="text-[10px] font-bold text-slate-500 hover:text-rose-400 transition-colors uppercase"
+                className="text-[10px] font-bold text-slate-500 hover:text-rose-400 transition-colors uppercase tracking-wider"
               >
                 Clear
               </button>
@@ -824,39 +1035,106 @@ const UploadPage = ({
           </div>
 
           {historyList.length > 0 ? (
-            <div className="space-y-3 flex-grow overflow-y-auto max-h-[420px] pr-1">
-              {historyList.map((item) => (
-                <div 
-                  key={item.id}
-                  onClick={() => handleSelectHistory(item)}
-                  className="p-3 bg-slate-900/30 hover:bg-slate-900/80 border border-slate-800/60 hover:border-slate-700/80 rounded-xl cursor-pointer transition-all duration-300 flex items-center justify-between group"
-                >
-                  <div className="min-w-0 pr-2">
-                    <h4 className="text-xs font-semibold text-slate-200 truncate group-hover:text-emerald-400 transition-colors">{item.fileName}</h4>
-                    <span className="text-[10px] text-slate-500 font-medium block mt-0.5">{item.timestamp}</span>
+            <div className="space-y-3 flex-grow overflow-y-auto max-h-[180px] pr-1">
+              {historyList.map((item) => {
+                const isPass = item.verdict === 'pass';
+                const isPartial = item.verdict === 'partial';
+                
+                let verdictText = "Fail";
+                let dotClass = "bg-rose-400";
+                
+                if (isPass) {
+                  verdictText = "Pass";
+                  dotClass = "bg-emerald-400";
+                } else if (isPartial) {
+                  verdictText = "Partial";
+                  dotClass = "bg-amber-400";
+                }
+
+                return (
+                  <div 
+                    key={item.id}
+                    onClick={() => handleSelectHistory(item)}
+                    className="p-3 bg-slate-950/40 hover:bg-slate-900/60 border border-slate-900 hover:border-slate-800 rounded-xl cursor-pointer transition-all duration-300 flex items-center justify-between group"
+                  >
+                    <div className="min-w-0 pr-2">
+                      <h4 className="text-xs font-semibold text-slate-300 truncate group-hover:text-emerald-400 transition-colors">{item.fileName}</h4>
+                      <span className="text-[9px] text-slate-500 font-medium block mt-0.5">{item.timestamp}</span>
+                    </div>
+                    
+                    {/* Premium custom capsule badge (verdict + score) */}
+                    <div className="flex items-center text-[9px] font-bold border border-slate-800 bg-slate-950/60 rounded-full overflow-hidden flex-shrink-0">
+                      <span className={`px-2.5 py-0.5 flex items-center gap-1 uppercase tracking-wider font-extrabold ${
+                        isPass ? "text-slate-950 bg-emerald-400" : 
+                        isPartial ? "text-slate-950 bg-amber-400" : 
+                        "text-white bg-rose-600"
+                      }`}>
+                        {verdictText}
+                      </span>
+                      <span className="px-2.5 py-0.5 text-white bg-slate-900 border-l border-slate-800">
+                        {item.score}%
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border capitalize ${
-                      item.verdict === 'pass' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
-                      (item.verdict === 'partial' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20')
-                    }`}>
-                      {item.verdict}
-                    </span>
-                    <span className="font-bold text-sm text-white">{item.score}%</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
-            <div className="flex-grow flex flex-col items-center justify-center text-center py-10">
-              <Icon name="history" className="w-10 h-10 text-slate-800 mb-3" />
-              <p className="text-slate-500 text-xs font-medium max-w-[180px] leading-relaxed">
-                Your past resume analysis reports will show up here.
+            <div className="flex-grow flex flex-col items-center justify-center text-center py-8">
+              <Icon name="history" className="w-8 h-8 text-slate-800 mb-2" />
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider leading-relaxed">
+                No past scans found
               </p>
             </div>
           )}
         </div>
+
+        {/* Panel 2: LAST ANALYSED */}
+        <div className="glass-card rounded-2xl p-5 min-h-[160px] flex flex-col border border-slate-800/80 shadow-xl">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-900 mb-4">
+            <h3 className="font-extrabold text-slate-400 flex items-center gap-2 text-xs uppercase tracking-widest">
+              <Icon name="check" className="w-4 h-4" />
+              Last Analysed
+            </h3>
+          </div>
+
+          {historyList.length > 0 ? (
+            <div className="flex-grow flex flex-col justify-between space-y-4">
+              <div>
+                <h4 className="text-xs font-semibold text-slate-200 truncate leading-normal">
+                  {historyList[0].fileName} - {historyList[0].score}%
+                </h4>
+                <span className="text-[9px] text-slate-500 font-medium block mt-0.5">
+                  {historyList[0].timestamp}
+                </span>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    downloadJSONReport(historyList[0].fileName, historyList[0].resultData);
+                  }}
+                  className="px-3.5 py-2 rounded-lg text-[10px] font-bold bg-slate-950 hover:bg-slate-900 border border-slate-800/80 text-white flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
+                >
+                  <Icon name="download" className="w-3.5 h-3.5" />
+                  Download Report
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-grow flex flex-col items-center justify-center text-center py-8">
+              <Icon name="sparkles" className="w-8 h-8 text-slate-800 mb-2" />
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider leading-relaxed">
+                No files analysed yet
+              </p>
+            </div>
+          )}
+        </div>
+
       </div>
+
+    </div>
     </div>
   );
 };
@@ -867,20 +1145,7 @@ const ResultsPage = ({ result, fileName, onBack }) => {
 
   // Format and download full JSON report (Deliverable 4)
   const handleDownloadReport = () => {
-    const reportData = {
-      analysis_date: new Date().toISOString(),
-      document_name: fileName,
-      ...result
-    };
-    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `ResuMind_Report_${fileName.replace(/\.[^/.]+$/, "")}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    downloadJSONReport(fileName, result);
   };
 
   const getVerdictDetails = (verdict, score) => {
@@ -899,7 +1164,7 @@ const ResultsPage = ({ result, fileName, onBack }) => {
         {result.local_mode && (
           <div className="p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-xl flex items-center gap-2.5 text-xs text-emerald-300">
             <Icon name="check" className="w-4 h-4 flex-shrink-0 text-emerald-400" />
-            <span><strong>Local Privacy Mode:</strong> Your resume has been analyzed 100% locally and privately on your machine. No data is sent to external servers.</span>
+            <span><strong>Local Privacy Mode:</strong> Your resume has been analysed 100% locally and privately on your machine. No data is sent to external servers.</span>
           </div>
         )}
         {result.short_resume && (
@@ -1156,7 +1421,7 @@ const ResultsPage = ({ result, fileName, onBack }) => {
             ) : (
               <div className="text-center py-10 bg-slate-900/20 border border-dashed border-slate-800 rounded-xl">
                 <Icon name="check" className="w-10 h-10 mx-auto text-emerald-500 mb-2" />
-                <h4 className="font-semibold text-white">Your resume is fully optimized!</h4>
+                <h4 className="font-semibold text-white">Your resume has been fully analysed!</h4>
                 <p className="text-xs text-slate-400 mt-1">No major improvements needed. Great job!</p>
               </div>
             )}
@@ -1291,7 +1556,7 @@ const ComparePage = ({
           {(result1.local_mode || result2.local_mode) && (
             <div className="p-3 bg-emerald-950/30 border border-emerald-500/20 rounded-xl flex items-center gap-2.5 text-xs text-emerald-300">
               <Icon name="check" className="w-4 h-4 flex-shrink-0 text-emerald-400" />
-              <span><strong>Local Privacy Mode:</strong> Resumes analyzed 100% locally and privately on your machine.</span>
+              <span><strong>Local Privacy Mode:</strong> Resumes analysed 100% locally and privately on your machine.</span>
             </div>
           )}
           

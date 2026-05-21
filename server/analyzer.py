@@ -494,7 +494,7 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
         
     if jd_text:
         if keyword_match_percent < 50:
-            feedback_parts.append(f"Your match rate with the job description is low ({keyword_match_percent}%). Integrate more missing keywords like {', '.join(missing_keywords[:3])} to optimize alignment.")
+            feedback_parts.append(f"Your match rate with the job description is low ({keyword_match_percent}%). Integrate more missing keywords like {', '.join(missing_keywords[:3])} to improve alignment.")
         else:
             feedback_parts.append(f"Strong keyword alignment ({keyword_match_percent}%) with the target role description.")
             
@@ -587,7 +587,7 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
         missing_preview = missing_skills[:3] if missing_skills else missing_keywords[:3]
         missing_str = ", ".join(missing_preview) if missing_preview else "skills listed in the job description"
         improvements.append({
-            "category": "ATS Keyword Optimization",
+            "category": "ATS Keyword Alignment",
             "priority": "High",
             "tip": f"Tailor your resume by naturally weaving in missing key skills (such as: {missing_str}) that were heavily emphasized in the job description."
         })

@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from parser import parse_pdf, parse_docx, parse_txt, process_resume_text, ParsingError
-from claude import analyze_resume_with_claude, ClaudeError
+from analyzer import analyze_resume, AnalyzerError
 
 # Load environment variables
 load_dotenv()
@@ -109,8 +109,8 @@ async def analyze(
             if len(jd_words) > 2000:
                 jd_text = " ".join(jd_words[:2000])
                 
-        # Analyze with Claude
-        analysis_result = analyze_resume_with_claude(processed["text"], jd_text, API_KEY)
+        # Analyze resume locally
+        analysis_result = analyze_resume(processed["text"], jd_text, API_KEY)
         
         # Add metadata flags to the analysis result for UI warning banners
         analysis_result["short_resume"] = processed["is_short_resume"]
@@ -129,7 +129,7 @@ async def analyze(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={"error_type": e.code, "message": e.message}
         )
-    except ClaudeError as e:
+    except AnalyzerError as e:
         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         if e.code in ["api_key_missing", "api_key_invalid"]:
             status_code = status.HTTP_401_UNAUTHORIZED

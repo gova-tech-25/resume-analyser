@@ -1,7 +1,7 @@
 import re
 import math
 
-class ClaudeError(Exception):
+class AnalyzerError(Exception):
     def __init__(self, code, message):
         self.code = code
         self.message = message
@@ -114,7 +114,7 @@ def clean_jd_words(jd_text: str) -> list:
     cleaned = [w for w in words if w not in stop_words and len(w) > 2]
     return list(set(cleaned))
 
-def analyze_resume_with_claude(resume_text: str, jd_text: str = None, api_key: str = None) -> dict:
+def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -> dict:
     """
     Analyzes resume text completely locally without external API dependencies.
     Computes scores, grades sections, extracts skill keywords, and suggests edits.

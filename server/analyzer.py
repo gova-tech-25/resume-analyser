@@ -339,6 +339,111 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
             
     summary_feedback = " ".join(feedback_parts)
     
+    # 7. Dynamic Improvement Advice
+    improvements = []
+    
+    # Detect domain
+    domain = "Software Engineering"
+    skills_lower = [s.lower() for s in found_skills]
+    
+    frontend_signals = {"react", "angular", "vue", "next.js", "javascript", "typescript", "html", "css", "tailwind css", "bootstrap", "sass"}
+    data_science_signals = {"python", "machine learning", "deep learning", "tensorflow", "pytorch", "pandas", "numpy", "scikit-learn", "data science", "nlp"}
+    devops_signals = {"docker", "kubernetes", "aws", "gcp", "google cloud", "azure", "jenkins", "terraform", "ansible", "ci/cd", "linux"}
+    backend_signals = {"node.js", "express", "django", "flask", "fastapi", "java", "go", "rust", "postgresql", "mysql", "mongodb", "redis"}
+    mobile_signals = {"kotlin", "swift"}
+    
+    fe_count = len(frontend_signals.intersection(skills_lower))
+    ds_count = len(data_science_signals.intersection(skills_lower))
+    do_count = len(devops_signals.intersection(skills_lower))
+    be_count = len(backend_signals.intersection(skills_lower))
+    mob_count = len(mobile_signals.intersection(skills_lower))
+    
+    max_count = max(fe_count, ds_count, do_count, be_count, mob_count)
+    if max_count > 0:
+        if max_count == fe_count:
+            domain = "Frontend Development"
+        elif max_count == ds_count:
+            domain = "Data Science / ML"
+        elif max_count == do_count:
+            domain = "Cloud / DevOps"
+        elif max_count == be_count:
+            domain = "Backend Development"
+        elif max_count == mob_count:
+            domain = "Mobile App Development"
+            
+    # Projects Section Check
+    proj_content = sections.get("projects", "").strip()
+    proj_words = len(proj_content.split())
+    if proj_words == 0:
+        improvements.append({
+            "category": "Projects & Portfolio",
+            "priority": "High",
+            "tip": f"Add some projects corresponding to your domain ({domain}) to demonstrate practical application of your skills and add more weight to your profile."
+        })
+    elif proj_words < 35:
+        improvements.append({
+            "category": "Projects & Portfolio",
+            "priority": "Medium",
+            "tip": f"Expand your existing projects to clearly highlight the technologies used (e.g., {', '.join(found_skills[:3]) if found_skills else 'your core tech stack'}), your specific contributions, and the project outcomes."
+        })
+        
+    # Impact / Metrics Check
+    if impact < 70:
+        improvements.append({
+            "category": "Quantifiable Impact",
+            "priority": "High",
+            "tip": "Incorporate more quantitative outcomes (e.g., percentages, dollar amounts, time saved) to prove the business impact of your contributions rather than just listing responsibilities."
+        })
+        
+    # Action Verbs Check
+    if len(found_verbs) < 4:
+        improvements.append({
+            "category": "Action-Oriented Language",
+            "priority": "Medium",
+            "tip": "Replace passive or generic phrasing like 'worked on' or 'handled' with dynamic, leadership-oriented action verbs such as 'spearheaded', 'engineered', or 'orchestrated'."
+        })
+        
+    # Summary / Profile Check
+    sum_content = sections.get("summary", "").strip()
+    if len(sum_content.split()) == 0:
+        improvements.append({
+            "category": "Professional Summary",
+            "priority": "Medium",
+            "tip": f"Add a compelling professional summary (3-4 sentences) that outlines your years of experience, core expertise in {domain}, and what you aim to deliver in your next role."
+        })
+        
+    # Skills Section Check
+    skills_content = sections.get("skills", "").strip()
+    if len(skills_content.split()) == 0:
+        improvements.append({
+            "category": "Technical Skills Setup",
+            "priority": "High",
+            "tip": "Group your technical competencies by category (e.g., Languages, Frameworks, Tools) to make it easier for both recruiters and ATS scanners to parse."
+        })
+        
+    # Job Description Match Check
+    if jd_text and keyword_match_percent < 60:
+        missing_preview = missing_skills[:3] if missing_skills else missing_keywords[:3]
+        missing_str = ", ".join(missing_preview) if missing_preview else "skills listed in the job description"
+        improvements.append({
+            "category": "ATS Keyword Optimization",
+            "priority": "High",
+            "tip": f"Tailor your resume by naturally weaving in missing key skills (such as: {missing_str}) that were heavily emphasized in the job description."
+        })
+        
+    # Fallback/General Tips if resume is already highly optimized
+    if not improvements:
+        improvements.append({
+            "category": "Formatting & Design",
+            "priority": "Low",
+            "tip": "Maintain a clean, single-page layout if your experience is under 5 years. Use standard fonts, consistent margins, and export as a PDF to preserve visual structure."
+        })
+        improvements.append({
+            "category": "Domain Specialization",
+            "priority": "Low",
+            "tip": f"Continue tailoring your resume's experience and project descriptions to focus heavily on core {domain} patterns, architecture, and engineering principles."
+        })
+    
     return {
         "overall_score": overall_score,
         "ats_score": ats_score,
@@ -356,6 +461,7 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
         "matched_keywords": matched_keywords,
         "missing_keywords": missing_keywords,
         "suggestions": suggestions,
+        "improvements": improvements,
         "summary_feedback": summary_feedback,
-        "local_mode": True # Mark that this was evaluated locally by our fast offline engine
+        "local_mode": True
     }

@@ -997,6 +997,7 @@ const ResultsPage = ({ result, fileName, onBack }) => {
       <div className="border-b border-slate-900 flex flex-wrap gap-2">
         {[
           { id: "overview", label: "Overview" },
+          { id: "improvements", label: "Improvement Tips" },
           { id: "skills", label: "Skills" },
           { id: "keywords", label: "Keywords" },
           { id: "grades", label: "Section Grades" },
@@ -1026,6 +1027,39 @@ const ResultsPage = ({ result, fileName, onBack }) => {
             <MetricCard title="Impact Factor" score={result.metrics?.impact || 0} />
             <MetricCard title="Formatting Audit" score={result.metrics?.formatting || 0} />
             <MetricCard title="Completeness" score={result.metrics?.completeness || 0} />
+          </div>
+        )}
+
+        {/* Improvements Tab */}
+        {activeTab === "improvements" && (
+          <div className="space-y-4 max-w-4xl">
+            {result.improvements && result.improvements.length > 0 ? (
+              result.improvements.map((imp, i) => (
+                <div key={i} className="glass-card rounded-xl p-5 border border-slate-800 hover:border-slate-700 transition-all duration-300">
+                  <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-900">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
+                      {imp.category}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${
+                      imp.priority === 'High' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
+                      imp.priority === 'Medium' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                      'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                    }`}>
+                      {imp.priority} Priority
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium leading-relaxed text-slate-200 mt-4">
+                    {imp.tip}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-10 bg-slate-900/20 border border-dashed border-slate-800 rounded-xl">
+                <Icon name="check" className="w-10 h-10 mx-auto text-emerald-500 mb-2" />
+                <h4 className="font-semibold text-white">Your resume is fully optimized!</h4>
+                <p className="text-xs text-slate-400 mt-1">No major improvements needed. Great job!</p>
+              </div>
+            )}
           </div>
         )}
 

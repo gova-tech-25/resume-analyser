@@ -270,7 +270,7 @@ def check_layout_issues(text: str) -> dict:
         "warnings": warnings
     }
 
-def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -> dict:
+def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None, field: str = None) -> dict:
     """
     Analyzes resume text completely locally without external API dependencies.
     Computes scores, grades sections, extracts skill keywords, and suggests edits.
@@ -505,32 +505,42 @@ def analyze_resume(resume_text: str, jd_text: str = None, api_key: str = None) -
     
     # Detect domain
     domain = "Software Engineering"
-    skills_lower = [s.lower() for s in found_skills]
-    
-    frontend_signals = {"react", "angular", "vue", "next.js", "javascript", "typescript", "html", "css", "tailwind css", "bootstrap", "sass"}
-    data_science_signals = {"python", "machine learning", "deep learning", "tensorflow", "pytorch", "pandas", "numpy", "scikit-learn", "data science", "nlp"}
-    devops_signals = {"docker", "kubernetes", "aws", "gcp", "google cloud", "azure", "jenkins", "terraform", "ansible", "ci/cd", "linux"}
-    backend_signals = {"node.js", "express", "django", "flask", "fastapi", "java", "go", "rust", "postgresql", "mysql", "mongodb", "redis"}
-    mobile_signals = {"kotlin", "swift"}
-    
-    fe_count = len(frontend_signals.intersection(skills_lower))
-    ds_count = len(data_science_signals.intersection(skills_lower))
-    do_count = len(devops_signals.intersection(skills_lower))
-    be_count = len(backend_signals.intersection(skills_lower))
-    mob_count = len(mobile_signals.intersection(skills_lower))
-    
-    max_count = max(fe_count, ds_count, do_count, be_count, mob_count)
-    if max_count > 0:
-        if max_count == fe_count:
-            domain = "Frontend Development"
-        elif max_count == ds_count:
-            domain = "Data Science / ML"
-        elif max_count == do_count:
-            domain = "Cloud / DevOps"
-        elif max_count == be_count:
-            domain = "Backend Development"
-        elif max_count == mob_count:
-            domain = "Mobile App Development"
+    if field:
+        field_map = {
+            "software_engineering": "Software Engineering",
+            "data_science": "Data Science / ML",
+            "product_management": "Product Management",
+            "finance": "Finance & Banking",
+            "other": "General / Other"
+        }
+        domain = field_map.get(field.lower(), "Software Engineering")
+    else:
+        skills_lower = [s.lower() for s in found_skills]
+        
+        frontend_signals = {"react", "angular", "vue", "next.js", "javascript", "typescript", "html", "css", "tailwind css", "bootstrap", "sass"}
+        data_science_signals = {"python", "machine learning", "deep learning", "tensorflow", "pytorch", "pandas", "numpy", "scikit-learn", "data science", "nlp"}
+        devops_signals = {"docker", "kubernetes", "aws", "gcp", "google cloud", "azure", "jenkins", "terraform", "ansible", "ci/cd", "linux"}
+        backend_signals = {"node.js", "express", "django", "flask", "fastapi", "java", "go", "rust", "postgresql", "mysql", "mongodb", "redis"}
+        mobile_signals = {"kotlin", "swift"}
+        
+        fe_count = len(frontend_signals.intersection(skills_lower))
+        ds_count = len(data_science_signals.intersection(skills_lower))
+        do_count = len(devops_signals.intersection(skills_lower))
+        be_count = len(backend_signals.intersection(skills_lower))
+        mob_count = len(mobile_signals.intersection(skills_lower))
+        
+        max_count = max(fe_count, ds_count, do_count, be_count, mob_count)
+        if max_count > 0:
+            if max_count == fe_count:
+                domain = "Frontend Development"
+            elif max_count == ds_count:
+                domain = "Data Science / ML"
+            elif max_count == do_count:
+                domain = "Cloud / DevOps"
+            elif max_count == be_count:
+                domain = "Backend Development"
+            elif max_count == mob_count:
+                domain = "Mobile App Development"
             
     # Projects Section Check
     proj_content = sections.get("projects", "").strip()

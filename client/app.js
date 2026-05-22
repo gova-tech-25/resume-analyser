@@ -302,12 +302,14 @@ const SuggestionCard = ({ suggestion, index }) => {
 };
 
 // Drag and drop zone component (EC-28) - Redesigned to 3D Isometric Holographic Scanner
-const UploadZone = ({ file, setFile }) => {
+const UploadZone = ({ file, setFile, uploadState, loadingMessage, onCancel }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
+  const isScanning = ["uploading", "parsing", "analyzing"].includes(uploadState);
 
   const handleDragOver = (e) => {
     e.preventDefault();
+    if (isScanning) return;
     setIsDragOver(true);
   };
 
@@ -317,6 +319,7 @@ const UploadZone = ({ file, setFile }) => {
 
   const handleDrop = (e) => {
     e.preventDefault();
+    if (isScanning) return;
     setIsDragOver(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -344,7 +347,10 @@ const UploadZone = ({ file, setFile }) => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={() => fileInputRef.current && fileInputRef.current.click()}
+      onClick={(e) => {
+        if (isScanning) return;
+        fileInputRef.current && fileInputRef.current.click();
+      }}
       className={`relative w-full h-[460px] flex flex-col items-center justify-center cursor-pointer group transition-all duration-300 ${
         isDragOver ? "scale-[1.02]" : ""
       }`}
@@ -354,6 +360,7 @@ const UploadZone = ({ file, setFile }) => {
         ref={fileInputRef}
         onChange={handleFileChange}
         accept=".pdf,.docx,.txt"
+        disabled={isScanning}
         className="hidden"
       />
       
@@ -369,7 +376,7 @@ const UploadZone = ({ file, setFile }) => {
             
             {/* Concentric details */}
             <div className="w-36 h-36 rounded-full bg-emerald-950/20 border-2 border-emerald-500/30 shadow-[inset_0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center">
-              <div className="w-20 h-20 rounded-full bg-emerald-500/10 animate-pulse-slow"></div>
+              <div className={`w-20 h-20 rounded-full bg-emerald-500/10 ${isScanning ? 'animate-ping' : 'animate-pulse-slow'}`}></div>
             </div>
             
             {/* Glowing cyber corners */}
@@ -384,7 +391,7 @@ const UploadZone = ({ file, setFile }) => {
         <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-20">
           
           {/* Vertical cylindrical glowing light beam */}
-          <div className="absolute w-48 h-72 bg-gradient-to-t from-emerald-500/15 via-emerald-500/5 to-transparent rounded-full blur-xl transform translate-y-[-20px] animate-beam"></div>
+          <div className={`absolute w-48 h-72 bg-gradient-to-t from-emerald-500/15 via-emerald-500/5 to-transparent rounded-full blur-xl transform translate-y-[-20px] ${isScanning ? 'animate-beam-fast' : 'animate-beam'}`}></div>
           
           {/* Floating glassmorphic document sheet */}
           <div className="animate-float relative w-48 h-64 bg-slate-950/65 backdrop-blur-md border border-emerald-500/35 rounded-2xl p-4 shadow-[0_0_35px_rgba(16,185,129,0.15)] flex flex-col justify-between transition-all duration-300 group-hover:border-emerald-500/55">
@@ -394,7 +401,7 @@ const UploadZone = ({ file, setFile }) => {
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   <span className="text-[9px] uppercase tracking-widest text-slate-400 font-extrabold">
-                    {file ? "File Loaded" : "Scanner Ready"}
+                    {isScanning ? "Scanning..." : (file ? "File Loaded" : "Scanner Ready")}
                   </span>
                 </div>
                 <Icon name="sparkles" className="w-3.5 h-3.5 text-emerald-400" />
@@ -438,7 +445,7 @@ const UploadZone = ({ file, setFile }) => {
             </div>
 
             {/* Sweeping neon laser line */}
-            <div className="absolute left-0 right-0 h-[2px] bg-emerald-400/90 shadow-[0_0_15px_rgba(52,211,153,0.9)] animate-scan"></div>
+            <div className={`absolute left-0 right-0 h-[2px] bg-emerald-400/90 shadow-[0_0_15px_rgba(52,211,153,0.9)] ${isScanning ? 'animate-scan-fast' : 'animate-scan'}`}></div>
           </div>
 
           {/* Floating keywords tags orbiting around */}
@@ -460,9 +467,67 @@ const UploadZone = ({ file, setFile }) => {
         </div>
 
       </div>
+
+      {/* Scanning Mode Overlay */}
+      {isScanning && (
+        <div 
+          className="absolute inset-0 z-35 flex flex-col items-center justify-center bg-slate-950/85 backdrop-blur-[3px] rounded-[2.5rem] p-6 space-y-6 pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Terminal / Console Logging Box */}
+          <div className="w-full max-w-sm bg-black/90 border border-emerald-500/30 rounded-xl p-4 font-mono text-[10px] text-emerald-400 space-y-2 shadow-2xl relative overflow-hidden">
+            {/* Glossy terminal top bar */}
+            <div className="flex items-center justify-between pb-1.5 border-b border-emerald-500/20 text-slate-500">
+              <span className="uppercase tracking-widest text-[8px] font-bold">System Terminal</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            </div>
+            <div className="h-24 overflow-y-auto flex flex-col justify-end space-y-1">
+              <div className="opacity-40">&gt; INITIALIZING SECURE SCAN ENGINE</div>
+              <div className="opacity-60">&gt; VERIFYING FILE BUFFER INTEGRITY</div>
+              <div className="opacity-80">&gt; EXTRACTING STRUCTURAL FEATURES</div>
+              <div className="text-white font-bold animate-pulse">&gt; {loadingMessage ? loadingMessage.toUpperCase() : "ANALYZING..."}</div>
+            </div>
+          </div>
+
+          {/* Real-time Progress Bar */}
+          <div className="w-full max-w-sm space-y-1.5">
+            <div className="flex justify-between text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">
+              <span>SCANNING PROGRESS</span>
+              <span className="text-emerald-400">{
+                uploadState === "uploading" ? "35%" : 
+                uploadState === "parsing" ? "70%" : 
+                "95%"
+              }</span>
+            </div>
+            <div className="w-full bg-slate-900 border border-slate-800 h-3 rounded-full overflow-hidden p-0.5 shadow-inner">
+              <div 
+                className="gradient-primary h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(16,185,129,0.5)]" 
+                style={{ 
+                  width: 
+                    uploadState === "uploading" ? "35%" : 
+                    uploadState === "parsing" ? "70%" : 
+                    "95%" 
+                }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Cancel Scan Button */}
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onCancel();
+            }}
+            className="flex items-center gap-1.5 text-xs font-bold px-5 py-2.5 rounded-full bg-rose-500/15 border border-rose-500/20 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 transition-all pointer-events-auto"
+          >
+            <Icon name="x" className="w-4 h-4" />
+            Cancel Scan
+          </button>
+        </div>
+      )}
       
       {/* Remove File Button */}
-      {file && (
+      {file && !isScanning && (
         <button 
           onClick={clearFile}
           className="absolute bottom-2 z-30 flex items-center gap-1.5 text-[10px] text-rose-400 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 px-3 py-1.5 rounded-lg transition-colors"
@@ -500,6 +565,7 @@ const App = () => {
   // Single Resume Upload Flow states
   const [file, setFile] = useState(null);
   const [jdText, setJdText] = useState("");
+  const [field, setField] = useState("software_engineering");
   const [uploadState, setUploadState] = useState("idle"); // idle | uploading | parsing | analyzing | done | error
   const [loadingMessage, setLoadingMessage] = useState("Preparing file upload...");
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -602,11 +668,12 @@ const App = () => {
     if (jdText.trim()) {
       formData.append("jd", jdText);
     }
+    formData.append("field", field);
 
     try {
       // Simulate intermediate states for visual delight
-      setTimeout(() => { if (uploadState === "uploading") setUploadState("parsing"); }, 800);
-      setTimeout(() => { if (uploadState === "parsing") setUploadState("analyzing"); }, 1800);
+      setTimeout(() => { setUploadState(s => s === "uploading" ? "parsing" : s); }, 800);
+      setTimeout(() => { setUploadState(s => s === "parsing" ? "analyzing" : s); }, 1800);
 
       const response = await fetch("/api/analyze", {
         method: "POST",
@@ -750,41 +817,24 @@ const App = () => {
       {/* Main Content Area */}
       <main className="flex-grow py-8 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Screen 1: Upload Page */}
-        {page === "upload" && uploadState !== "uploading" && uploadState !== "parsing" && uploadState !== "analyzing" && (
+        {/* Screen 1: Upload Page (integrates loading/scanning state internally) */}
+        {page === "upload" && (
           <UploadPage 
             file={file} 
             setFile={setFile} 
             jdText={jdText} 
             setJdText={setJdText}
+            field={field}
+            setField={setField}
             historyList={historyList}
             handleSelectHistory={handleSelectHistory}
             handleClearHistory={handleClearHistory}
             handleAnalyze={handleAnalyzeResume}
             uploadState={uploadState}
             errorDetails={errorDetails}
+            loadingMessage={loadingMessage}
+            onCancel={handleCancelAnalysis}
           />
-        )}
-
-        {/* Screen 2: Loading State */}
-        {(uploadState === "uploading" || uploadState === "parsing" || uploadState === "analyzing") && (
-          <div className="flex flex-col items-center justify-center max-w-md mx-auto py-20 text-center">
-            {/* Spinning slow double concentric loader circles */}
-            <div className="relative w-24 h-24 mb-8">
-              <div className="absolute inset-0 rounded-full border-4 border-emerald-500/10 border-t-emerald-400 animate-spin"></div>
-              <div className="absolute inset-2 rounded-full border-4 border-blue-500/10 border-t-blue-400 animate-spin-slow" style={{ animationDirection: 'reverse' }}></div>
-            </div>
-            
-            <h3 className="text-xl font-bold text-white mb-2">Analysing Resume</h3>
-            <p className="text-slate-400 text-sm h-6">{loadingMessage}</p>
-
-            <button 
-              onClick={handleCancelAnalysis}
-              className="mt-8 text-xs font-semibold px-4 py-2 rounded-lg bg-rose-500/15 border border-rose-500/20 text-rose-400 hover:bg-rose-500/25 transition-colors"
-            >
-              Cancel Analysis
-            </button>
-          </div>
         )}
 
         {/* Screen 3: Results Dashboard */}
@@ -827,14 +877,19 @@ const UploadPage = ({
   setFile, 
   jdText, 
   setJdText, 
+  field,
+  setField,
   historyList, 
   handleSelectHistory, 
   handleClearHistory,
   handleAnalyze,
   uploadState,
-  errorDetails
+  errorDetails,
+  loadingMessage,
+  onCancel
 }) => {
   const [isJdOpen, setIsJdOpen] = useState(true); // Default open for premium visual appearance
+  const isScanning = ["uploading", "parsing", "analyzing"].includes(uploadState);
 
   return (
     <div className="glass-hero-container rounded-[2.5rem] p-6 sm:p-8 lg:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
@@ -844,14 +899,14 @@ const UploadPage = ({
       {/* Ambient background glows */}
       <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none z-0"></div>
       <div className="absolute -bottom-40 -right-40 w-80 h-80 rounded-full bg-blue-500/5 blur-[120px] pointer-events-none z-0"></div>
-
+ 
       {/* Floating glowing 4-point star at bottom right */}
       <div className="absolute bottom-6 right-6 text-emerald-400/20 animate-pulse pointer-events-none z-0">
         <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z" fill="currentColor" />
         </svg>
       </div>
-
+ 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
         
         {/* Column 1 (Left): Control Console (~35% width / 4 cols) */}
@@ -869,7 +924,7 @@ const UploadPage = ({
             </div>
           </div>
         )}
-
+ 
         <div className="space-y-3">
           <h1 className="text-4xl font-extrabold tracking-tight text-white leading-[1.15]">
             Analyse <br />
@@ -879,7 +934,7 @@ const UploadPage = ({
             Upload your resume, add your target job description, and leverage advanced AI to identify gaps, analyse keywords, and boost your ATS scoring matches instantly.
           </p>
         </div>
-
+ 
         {/* Collapsible JD Input - styled as macOS window */}
         <div className="glass-card rounded-2xl border border-slate-800/80 overflow-hidden transition-all duration-300 shadow-xl shadow-black/40">
           {/* macOS window header */}
@@ -913,7 +968,7 @@ const UploadPage = ({
               </span>
             </button>
           </div>
-
+ 
           {isJdOpen && (
             <div className="p-4 bg-slate-900/10">
               <div className="flex items-center justify-between mb-1.5 text-[9px] text-slate-500 font-bold uppercase">
@@ -923,22 +978,25 @@ const UploadPage = ({
               <textarea 
                 value={jdText}
                 onChange={(e) => setJdText(e.target.value)}
+                disabled={isScanning}
                 placeholder="Paste the job description keywords, skills, and details here to compare against your resume..."
                 rows="5"
-                className="w-full rounded-xl p-3 text-xs font-medium leading-relaxed bg-slate-950/50 border border-slate-800/80 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/10"
+                className="w-full rounded-xl p-3 text-xs font-medium leading-relaxed bg-slate-950/50 border border-slate-800/80 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <div className="flex items-center justify-between mt-2 text-[9px] text-slate-500 font-bold uppercase">
                 <span>Max: 2000 words</span>
                 <span>{jdText.trim() ? jdText.split(/\s+/).length : 0} words</span>
               </div>
-
+ 
               {/* Field Select Row */}
               <div className="mt-3 flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
                 <span className="text-xs font-bold text-slate-400">Field</span>
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
                   <select 
-                    defaultValue="software_engineering"
-                    className="bg-transparent text-xs font-bold text-slate-300 focus:outline-none cursor-pointer text-right appearance-none hover:text-emerald-400 transition-colors"
+                    value={field}
+                    onChange={(e) => setField(e.target.value)}
+                    disabled={isScanning}
+                    className="bg-transparent text-xs font-bold text-slate-300 focus:outline-none cursor-pointer text-right appearance-none hover:text-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="software_engineering" className="bg-slate-950 text-slate-300">Software Engineering</option>
                     <option value="data_science" className="bg-slate-950 text-slate-300">Data Science</option>
@@ -952,14 +1010,14 @@ const UploadPage = ({
             </div>
           )}
         </div>
-
+ 
         {/* Trigger Analysis CTA - Glassy Curved Bar */}
         <div className="flex items-center gap-3">
           <button
             onClick={handleAnalyze}
-            disabled={!file}
+            disabled={!file || isScanning}
             className={`flex-grow py-3.5 px-6 rounded-full font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition-all border ${
-              file 
+              file && !isScanning
                 ? "bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-slate-950 hover:scale-[1.01] hover:shadow-emerald-500/20 shadow-emerald-500/10 border-transparent cursor-pointer" 
                 : "bg-slate-900/40 text-slate-500 border-slate-800/80 cursor-not-allowed"
             }`}
@@ -990,7 +1048,7 @@ const UploadPage = ({
             <Icon name="brain" className="w-5 h-5 text-emerald-400 animate-pulse-slow relative z-10" />
           </div>
         </div>
-
+ 
         {/* Supported formats glassy row & output text */}
         <div className="pt-2">
           <div className="flex gap-2 items-center">
@@ -1008,12 +1066,18 @@ const UploadPage = ({
           </span>
         </div>
       </div>
-
+ 
       {/* Column 2 (Center): 3D Holographic Scanner (~40% width / 5 cols) */}
       <div className="lg:col-span-5 flex items-center justify-center relative min-h-[460px]">
-        <UploadZone file={file} setFile={setFile} />
+        <UploadZone 
+          file={file} 
+          setFile={setFile} 
+          uploadState={uploadState} 
+          loadingMessage={loadingMessage} 
+          onCancel={onCancel}
+        />
       </div>
-
+ 
       {/* Column 3 (Right): Sidebar History & Last Analysed (~25% width / 3 cols) */}
       <div className="lg:col-span-3 space-y-6">
         
@@ -1026,14 +1090,15 @@ const UploadPage = ({
             </h3>
             {historyList.length > 0 && (
               <button 
-                onClick={handleClearHistory}
-                className="text-[10px] font-bold text-slate-500 hover:text-rose-400 transition-colors uppercase tracking-wider"
+                onClick={() => !isScanning && handleClearHistory()}
+                disabled={isScanning}
+                className="text-[10px] font-bold text-slate-500 hover:text-rose-400 transition-colors uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Clear
               </button>
             )}
           </div>
-
+ 
           {historyList.length > 0 ? (
             <div className="space-y-3 flex-grow overflow-y-auto max-h-[180px] pr-1">
               {historyList.map((item) => {
@@ -1041,21 +1106,20 @@ const UploadPage = ({
                 const isPartial = item.verdict === 'partial';
                 
                 let verdictText = "Fail";
-                let dotClass = "bg-rose-400";
                 
                 if (isPass) {
                   verdictText = "Pass";
-                  dotClass = "bg-emerald-400";
                 } else if (isPartial) {
                   verdictText = "Partial";
-                  dotClass = "bg-amber-400";
                 }
-
+ 
                 return (
                   <div 
                     key={item.id}
-                    onClick={() => handleSelectHistory(item)}
-                    className="p-3 bg-slate-950/40 hover:bg-slate-900/60 border border-slate-900 hover:border-slate-800 rounded-xl cursor-pointer transition-all duration-300 flex items-center justify-between group"
+                    onClick={() => !isScanning && handleSelectHistory(item)}
+                    className={`p-3 bg-slate-950/40 border border-slate-900 rounded-xl flex items-center justify-between group ${
+                      isScanning ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-900/60 hover:border-slate-800 cursor-pointer transition-all duration-300"
+                    }`}
                   >
                     <div className="min-w-0 pr-2">
                       <h4 className="text-xs font-semibold text-slate-300 truncate group-hover:text-emerald-400 transition-colors">{item.fileName}</h4>
@@ -1088,53 +1152,74 @@ const UploadPage = ({
             </div>
           )}
         </div>
-
-        {/* Panel 2: LAST ANALYSED */}
-        <div className="glass-card rounded-2xl p-5 min-h-[160px] flex flex-col border border-slate-800/80 shadow-xl">
+ 
+        {/* Panel 2: LAST OPTIMIZED */}
+        <div className="glass-card rounded-2xl p-5 min-h-[140px] flex flex-col border border-slate-800/80 shadow-xl">
           <div className="flex items-center justify-between pb-3 border-b border-slate-900 mb-4">
             <h3 className="font-extrabold text-slate-400 flex items-center gap-2 text-xs uppercase tracking-widest">
               <Icon name="check" className="w-4 h-4" />
-              Last Analysed
+              LAST OPTIMIZED
             </h3>
+            {historyList.length > 0 && (
+              <button 
+                onClick={() => {
+                  if (isScanning) return;
+                  const updatedHistory = historyList.slice(1);
+                  setHistoryList(updatedHistory);
+                  localStorage.setItem("resumind_history", JSON.stringify(updatedHistory));
+                }}
+                disabled={isScanning}
+                className="text-[10px] font-bold text-slate-500 hover:text-rose-400 transition-colors uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Clear
+              </button>
+            )}
           </div>
-
+ 
           {historyList.length > 0 ? (
-            <div className="flex-grow flex flex-col justify-between space-y-4">
-              <div>
+            <div className="flex-grow flex items-center justify-between gap-4 pt-2">
+              <div className="min-w-0 flex-1">
                 <h4 className="text-xs font-semibold text-slate-200 truncate leading-normal">
-                  {historyList[0].fileName} - {historyList[0].score}%
+                  {historyList[0].fileName}
                 </h4>
-                <span className="text-[9px] text-slate-500 font-medium block mt-0.5">
-                  {historyList[0].timestamp}
-                </span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                    {historyList[0].score}%
+                  </span>
+                  <span className="text-[9px] text-slate-500 font-medium truncate">
+                    {historyList[0].timestamp}
+                  </span>
+                </div>
               </div>
-
-              <div className="flex justify-end pt-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    downloadJSONReport(historyList[0].fileName, historyList[0].resultData);
-                  }}
-                  className="px-3.5 py-2 rounded-lg text-[10px] font-bold bg-slate-950 hover:bg-slate-900 border border-slate-800/80 text-white flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
-                >
-                  <Icon name="download" className="w-3.5 h-3.5" />
-                  Download Report
-                </button>
-              </div>
+ 
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isScanning) return;
+                  downloadJSONReport(historyList[0].fileName, historyList[0].resultData);
+                }}
+                disabled={isScanning}
+                className="flex-shrink-0 p-2 rounded-lg text-slate-300 hover:text-emerald-400 bg-slate-900 border border-slate-800 hover:border-emerald-500/20 transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Download Report"
+              >
+                <Icon name="download" className="w-3.5 h-3.5" />
+              </button>
             </div>
           ) : (
             <div className="flex-grow flex flex-col items-center justify-center text-center py-8">
               <Icon name="sparkles" className="w-8 h-8 text-slate-800 mb-2" />
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider leading-relaxed">
-                No files analysed yet
+                No files optimised yet
               </p>
             </div>
           )}
         </div>
-
+ 
       </div>
-
+ 
     </div>
+  );
+};
     </div>
   );
 };

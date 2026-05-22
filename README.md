@@ -1,5 +1,7 @@
 # ResuMind 🚀
 
+🌐 **Live Demo:** [https://resume-analyser-zuca.onrender.com/](https://resume-analyser-zuca.onrender.com/)
+
 ResuMind is a premium, full-stack **Resume Analyzer & ATS Optimizer** that runs **100% locally and privately**. There are zero external API dependencies (like Anthropic or OpenAI), which means your documents are parsed, analyzed, and rewritten securely, offline, and in-memory. No private data is ever sent to external cloud servers, and it runs at **zero cost** with instant response times.
 
 ---

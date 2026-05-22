@@ -66,7 +66,8 @@ def validate_file_content(file_bytes: bytes, filename: str) -> str:
 async def analyze(
     request: Request,
     resume: UploadFile = File(...),
-    jd: str = Form(None)
+    jd: str = Form(None),
+    field: str = Form(None)
 ):
     # Check rate limits
     client_ip = request.client.host if request.client else "unknown"
@@ -110,7 +111,7 @@ async def analyze(
                 jd_text = " ".join(jd_words[:2000])
                 
         # Analyze resume locally
-        analysis_result = analyze_resume(processed["text"], jd_text, API_KEY)
+        analysis_result = analyze_resume(processed["text"], jd_text, API_KEY, field)
         
         # Add metadata flags to the analysis result for UI warning banners
         analysis_result["short_resume"] = processed["is_short_resume"]

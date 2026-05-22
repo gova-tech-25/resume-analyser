@@ -178,9 +178,29 @@
     .animate-scan {
       animation: scan 2.5s ease-in-out infinite;
     }
+
+    @keyframes scan-fast {
+      0% { top: 0%; opacity: 0.3; }
+      50% { top: 100%; opacity: 1; }
+      100% { top: 0%; opacity: 0.3; }
+    }
+    
+    .animate-scan-fast {
+      animation: scan-fast 1.2s ease-in-out infinite;
+    }
     
     .animate-beam {
       animation: beam-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes beam-pulse-fast {
+      0% { opacity: 0.25; transform: scaleX(0.9) scale(1); }
+      50% { opacity: 0.65; transform: scaleX(1.15) scale(1.05); }
+      100% { opacity: 0.25; transform: scaleX(0.9) scale(1); }
+    }
+    
+    .animate-beam-fast {
+      animation: beam-pulse-fast 1.2s ease-in-out infinite;
     }
     
     .animate-orbit-1 {
@@ -198,6 +218,32 @@
     .scanner-isometric {
       transform: rotateX(55deg) rotateZ(-45deg);
       transform-style: preserve-3d;
+      position: relative;
+    }
+
+    /* 3D depth layers for the platform base */
+    .scanner-isometric::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.4) 0%, rgba(5, 150, 105, 0.1) 100%);
+      border: 3px solid rgba(16, 185, 129, 0.35);
+      transform: translateZ(-24px);
+      border-radius: 2.2rem;
+      filter: blur(1.5px);
+      z-index: -2;
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.25);
+    }
+
+    .scanner-isometric::after {
+      content: '';
+      position: absolute;
+      inset: 0px;
+      background: #0d1527;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transform: translateZ(-12px);
+      border-radius: 2rem;
+      z-index: -1;
     }
   </style>
 </head>
@@ -207,6 +253,53 @@
   <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
     <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-950/20 blur-[120px] animate-glow-slow"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-950/15 blur-[150px] animate-glow-slow" style="animation-delay: -3s;"></div>
+    
+    <!-- Connected nodes SVG network on the right (matching reference image) -->
+    <svg class="absolute right-[-5%] top-[15%] w-[45%] h-[70%] opacity-20 text-emerald-800" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <!-- Connective lines -->
+      <line x1="10" y1="20" x2="30" y2="40" stroke="currentColor" stroke-width="0.3" stroke-dasharray="1 1" />
+      <line x1="30" y1="40" x2="60" y2="30" stroke="currentColor" stroke-width="0.3" />
+      <line x1="60" y1="30" x2="80" y2="70" stroke="currentColor" stroke-width="0.3" stroke-dasharray="2 2" />
+      <line x1="30" y1="40" x2="40" y2="80" stroke="currentColor" stroke-width="0.3" />
+      <line x1="40" y1="80" x2="80" y2="70" stroke="currentColor" stroke-width="0.3" />
+      <line x1="80" y1="70" x2="95" y2="50" stroke="currentColor" stroke-width="0.3" />
+      <line x1="60" y1="30" x2="95" y2="50" stroke="currentColor" stroke-width="0.3" />
+      <!-- Nodes -->
+      <circle cx="10" cy="20" r="1" fill="#10b981" class="animate-pulse" />
+      <circle cx="30" cy="40" r="1.5" fill="#059669" />
+      <circle cx="60" cy="30" r="1" fill="#10b981" />
+      <circle cx="80" cy="70" r="2" fill="#34d399" class="animate-pulse" />
+      <circle cx="40" cy="80" r="1.5" fill="#10b981" />
+      <circle cx="95" cy="50" r="1" fill="#059669" />
+    </svg>
+
+    <!-- Sci-fi vertical matrix faded code on the left (matching reference image) -->
+    <div class="absolute left-6 top-[20%] w-[250px] opacity-[0.03] font-mono text-[9px] text-emerald-400 select-none overflow-hidden h-[60%] leading-relaxed">
+      <div>import os</div>
+      <div>import sys</div>
+      <div>from parser import parse_pdf</div>
+      <div>from analyzer import analyze_resume</div>
+      <div># Processing chunks...</div>
+      <div>def run_analysis(resume_data):</div>
+      <div>&nbsp;&nbsp;ats_score = 0</div>
+      <div>&nbsp;&nbsp;for key in resume_data:</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;if key in target_keys:</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ats_score += 10</div>
+      <div>&nbsp;&nbsp;return min(ats_score, 100)</div>
+      <div># Executing AI checks...</div>
+      <div># PII Masking: Active</div>
+      <div># STAR Audit: Running</div>
+      <div># Found 12 compliant bullets</div>
+      <div># Caching results...</div>
+      <div># Done in 0.004s</div>
+    </div>
+
+    <!-- Glowing 4-point star at bottom right (matching reference image) -->
+    <div class="absolute bottom-10 right-10 text-emerald-500/10">
+      <svg class="w-16 h-16 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z" fill="currentColor" />
+      </svg>
+    </div>
   </div>
 
   <div id="root" class="relative z-10"></div>
